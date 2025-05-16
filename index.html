@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HK'S LOTTERY LEAGUE</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: red;
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: white;
+      color: black;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    .card.red {
+      background-color: red;
+      color: white;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    input {
+      background-color: white;
+      color: black;
+    }
+    button {
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: white;
+      color: black;
+    }
+    .footer {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>HK'S LOTTERY LEAGUE</h1>
+
+    <div class="card">
+      <h2 style="color: red;">What is it?</h2>
+      <p>
+        HK's Lottery League is a competitive Gorilla Tag league where players pay to enter for a chance to win big. 75% of the total pool goes to the winner!
+      </p>
+      <p>
+        Show off your skills, dominate your opponents, and take home the prize. Only the best win.
+      </p>
+    </div>
+
+    <div class="card red">
+      <h2>Join Now</h2>
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+        <input type="hidden" name="cmd" value="_xclick" />
+        <input type="hidden" name="business" value="banaro7283@gmail.com" />
+        <input type="hidden" name="item_name" value="HK'S Lottery League Entry" />
+        <input type="hidden" name="currency_code" value="USD" />
+        <input type="hidden" name="amount" value="5.00" />
+
+        <input type="text" name="custom" placeholder="Your Team name (not tag)" required />
+        <input type="email" name="email" placeholder="Email" required />
+
+        <button type="submit">Pay & Enter</button>
+      </form>
+    </div>
+
+    <div class="footer">
+      75% of total pool goes to the winner | All sales final | No refunds
+    </div>
+  </div>
+</body>
+</html>
