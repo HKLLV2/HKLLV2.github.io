@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Channel Name Generator</title>
+  <title>Channel Name Generator — Chaos Edition</title>
   <style>
     body {
       font-family: monospace;
@@ -21,7 +21,8 @@
       margin-top: 15px;
       font-weight: bold;
       font-size: 20px;
-      white-space: pre;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -34,20 +35,14 @@
   <input type="text" id="separator" value="║" maxlength="1">
 
   <label>Channel Name:</label>
-  <input type="text" id="name" placeholder="channel name">
+  <input type="text" id="name" placeholder="Forge the name">
 
-  <label>Font Style:</label>
-  <select id="fontStyle">
-    <option value="smallcaps">[1] Small Caps</option>
-    <option value="boldserif">[2] Bold (Serif)</option>
-    <option value="italicserif">[3] Italic (Serif)</option>
-    <option value="bolditalicserif">[4] Bold Italic (Serif)</option>
-    <option value="boldsans">[5] Bold (Sans)</option>
-    <option value="scripts">[6] Script / Cursive</option>
-    <option value="fraktur">[7] Gothic / Fraktur</option>
-    <option value="italicsans">[8] Italic (Sans)</option>
-    <option value="monospace">[9] Monospace</option>
-    <option value="fullwidth">[10] Fullwidth Caps</option>
+  <label>Style:</label>
+  <select id="style">
+    <option value="tiny">Tiny Caps</option>
+    <option value="fullwidth">Fullwidth</option>
+    <option value="bolditalic">Bold Italic</option>
+    <option value="zalgo">Zalgo (chaos)</option>
   </select>
 
   <div id="output"></div>
@@ -56,67 +51,88 @@
     const emoji = document.getElementById("emoji");
     const separator = document.getElementById("separator");
     const name = document.getElementById("name");
-    const fontStyle = document.getElementById("fontStyle");
+    const style = document.getElementById("style");
     const output = document.getElementById("output");
 
-    const maps = {
-      smallcaps: {
-        A: 'ᴀ', B: 'ʙ', C: 'ᴄ', D: 'ᴅ', E: 'ᴇ', F: 'ꜰ', G: 'ɢ',
-        H: 'ʜ', I: 'ɪ', J: 'ᴊ', K: 'ᴋ', L: 'ʟ', M: 'ᴍ', N: 'ɴ',
-        O: 'ᴏ', P: 'ᴘ', Q: 'ǫ', R: 'ʀ', S: 'ꜱ', T: 'ᴛ', U: 'ᴜ',
-        V: 'ᴠ', W: 'ᴡ', X: 'x', Y: 'ʏ', Z: 'ᴢ', ' ': ' '
-      },
-      boldserif: makeRangeMap(0x1D400),
-      italicserif: makeRangeMap(0x1D434),
-      bolditalicserif: makeRangeMap(0x1D468),
-      boldsans: makeRangeMap(0x1D5D4),
-      italicsans: makeRangeMap(0x1D608),
-      monospace: makeRangeMap(0x1D670),
-      fraktur: {
-        A: '𝔄', B: '𝔅', C: 'ℭ', D: '𝔇', E: '𝔈', F: '𝔉', G: '𝔊',
-        H: 'ℌ', I: 'ℑ', J: '𝔍', K: '𝔎', L: '𝔏', M: '𝔐', N: '𝔑',
-        O: '𝔒', P: '𝔓', Q: '𝔔', R: 'ℜ', S: '𝔖', T: '𝔗', U: '𝔘',
-        V: '𝔙', W: '𝔚', X: '𝔛', Y: '𝔜', Z: 'ℨ', ' ': ' '
-      },
-      scripts: {
-        A: '𝒜', B: 'ℬ', C: '𝒞', D: '𝒟', E: 'ℰ', F: 'ℱ', G: '𝒢',
-        H: 'ℋ', I: 'ℐ', J: '𝒥', K: '𝒦', L: 'ℒ', M: 'ℳ', N: '𝒩',
-        O: '𝒪', P: '𝒫', Q: '𝒬', R: 'ℛ', S: '𝒮', T: '𝒯', U: '𝒰',
-        V: '𝒱', W: '𝒲', X: '𝒳', Y: '𝒴', Z: '𝒵', ' ': ' '
-      },
-      fullwidth: {
-        ' ': '　'
-      }
+    const smallCapsMap = {
+      'A': 'ᴀ','B': 'ʙ','C': 'ᴄ','D': 'ᴅ','E': 'ᴇ','F': 'ꜰ',
+      'G': 'ɢ','H': 'ʜ','I': 'ɪ','J': 'ᴊ','K': 'ᴋ','L': 'ʟ',
+      'M': 'ᴍ','N': 'ɴ','O': 'ᴏ','P': 'ᴘ','Q': 'ǫ','R': 'ʀ',
+      'S': 'ꜱ','T': 'ᴛ','U': 'ᴜ','V': 'ᴠ','W': 'ᴡ','X': 'x',
+      'Y': 'ʏ','Z': 'ᴢ',' ': ' '
     };
 
-    function makeRangeMap(base) {
-      const map = {};
-      for (let i = 0; i < 26; i++) {
-        map[String.fromCharCode(65 + i)] = String.fromCharCode(base + i);
-      }
-      map[' '] = ' ';
-      return map;
+    const boldItalicOffset = 0x1D468; // A in Mathematical Bold Italic
+    const fullWidthOffset = 0xFF21; // Fullwidth A
+
+    const zalgoUp = ['̍','̎','̄','̅','̿','̑','̆','̐','͒','͗','͑','̇','̈','̊','͂','̓','̈́','͊','͋','͌','̃','̂','̌','͐','̀','́','̋','̏','̽','̉','ͣ','ͤ','ͥ','ͦ','ͧ','ͨ','ͩ','ͪ','ͫ','ͬ','ͭ','ͮ','ͯ'];
+    const zalgoDown = ['̖','̗','̘','̙','̜','̝','̞','̟','̠','̤','̥','̦','̩','̪','̫','̬','̭','̮','̯','̰','̱','̲','̳','̹','̺','̻','̼','ͅ','͇','͈','͉','͍','͎','͓','͔','͕','͖','͙','͚'];
+    const zalgoMid = ['̕','̛','̀','́','͘','̡','̢','̧','̨','̴','̵','̶','͜','͝','͞','͟','͠','͢','̸','̷','͡','҉'];
+
+    function cursedify(text) {
+      return [...text.toUpperCase()].map(char => smallCapsMap[char] || char).join('');
     }
 
-    function convert(text, style) {
-      const map = maps[style];
-      return [...text.toUpperCase()].map(c => map[c] || c).join('');
+    function fullwidthify(text) {
+      return [...text.toUpperCase()].map(char => {
+        if (char >= 'A' && char <= 'Z') return String.fromCharCode(char.charCodeAt(0) - 65 + 0xFF21);
+        if (char >= '0' && char <= '9') return String.fromCharCode(char.charCodeAt(0) - 48 + 0xFF10);
+        return char;
+      }).join('');
+    }
+
+    function boldItalicify(text) {
+      return [...text.toUpperCase()].map(char => {
+        const code = char.charCodeAt(0);
+        if (char >= 'A' && char <= 'Z') return String.fromCodePoint(boldItalicOffset + (code - 65));
+        return char;
+      }).join('');
+    }
+
+    function zalgoify(text) {
+      return [...text].map(char => {
+        const up = randZalgo(zalgoUp, 3);
+        const mid = randZalgo(zalgoMid, 1);
+        const down = randZalgo(zalgoDown, 3);
+        return char + up + mid + down;
+      }).join('');
+    }
+
+    function randZalgo(array, max) {
+      return Array.from({ length: Math.floor(Math.random() * max) }, () =>
+        array[Math.floor(Math.random() * array.length)]
+      ).join('');
     }
 
     function updateOutput() {
-      const em = emoji.value || '☠️';
+      const em = emoji.value || '☢️';
       const sep = separator.value || '║';
       const rawName = name.value;
-      const style = fontStyle.value;
 
-      const styled = convert(rawName, style);
+      let styled = rawName;
+
+      switch (style.value) {
+        case 'tiny':
+          styled = cursedify(rawName);
+          break;
+        case 'fullwidth':
+          styled = fullwidthify(rawName);
+          break;
+        case 'bolditalic':
+          styled = boldItalicify(rawName);
+          break;
+        case 'zalgo':
+          styled = zalgoify(rawName);
+          break;
+      }
+
       output.textContent = `${em}${sep}${styled}`;
     }
 
     emoji.addEventListener("input", updateOutput);
     separator.addEventListener("input", updateOutput);
     name.addEventListener("input", updateOutput);
-    fontStyle.addEventListener("change", updateOutput);
+    style.addEventListener("input", updateOutput);
   </script>
 
 </body>
