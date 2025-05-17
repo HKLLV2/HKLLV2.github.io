@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Channel Name Generator</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #111;
+      color: #0f0;
+      padding: 20px;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+      background-color: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+    }
+    #output {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 20px;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+
+  <label>Emoji:</label>
+  <input type="text" id="emoji" placeholder="Paste emoji" maxlength="4">
+
+  <label>Separator:</label>
+  <input type="text" id="separator" value="║" maxlength="1">
+
+  <label>Channel Name:</label>
+  <input type="text" id="name" placeholder="summon the cursed name">
+
+  <div id="output"></div>
+
+  <script>
+    const emoji = document.getElementById("emoji");
+    const separator = document.getElementById("separator");
+    const name = document.getElementById("name");
+    const output = document.getElementById("output");
+
+    // Map of regular letters to their cursed tiny uppercase versions
+    const smallCapsMap = {
+      'A': 'ᴀ', 'B': 'ʙ', 'C': 'ᴄ', 'D': 'ᴅ', 'E': 'ᴇ',
+      'F': 'ꜰ', 'G': 'ɢ', 'H': 'ʜ', 'I': 'ɪ', 'J': 'ᴊ',
+      'K': 'ᴋ', 'L': 'ʟ', 'M': 'ᴍ', 'N': 'ɴ', 'O': 'ᴏ',
+      'P': 'ᴘ', 'Q': 'ǫ', 'R': 'ʀ', 'S': 'ꜱ', 'T': 'ᴛ',
+      'U': 'ᴜ', 'V': 'ᴠ', 'W': 'ᴡ', 'X': 'x', 'Y': 'ʏ',
+      'Z': 'ᴢ', ' ': ' '
+    };
+
+    function cursedify(text) {
+      return [...text.toUpperCase()].map(char =>
+        smallCapsMap[char] || char
+      ).join('');
+    }
+
+    function updateOutput() {
+      const em = emoji.value || '☠️';
+      const sep = separator.value || '║';
+      const rawName = name.value;
+      const cursed = cursedify(rawName);
+      output.textContent = `${em}${sep}${cursed}`;
+    }
+
+    emoji.addEventListener("input", updateOutput);
+    separator.addEventListener("input", updateOutput);
+    name.addEventListener("input", updateOutput);
+  </script>
+
+</body>
+</html>
