@@ -10,7 +10,7 @@
       color: #0f0;
       padding: 20px;
     }
-    input {
+    input, select {
       margin: 5px;
       padding: 5px;
       background-color: #222;
@@ -34,7 +34,21 @@
   <input type="text" id="separator" value="║" maxlength="1">
 
   <label>Channel Name:</label>
-  <input type="text" id="name" placeholder="summon the cursed name">
+  <input type="text" id="name" placeholder="channel name">
+
+  <label>Font Style:</label>
+  <select id="fontStyle">
+    <option value="smallcaps">[1] Small Caps</option>
+    <option value="boldserif">[2] Bold (Serif)</option>
+    <option value="italicserif">[3] Italic (Serif)</option>
+    <option value="bolditalicserif">[4] Bold Italic (Serif)</option>
+    <option value="boldsans">[5] Bold (Sans)</option>
+    <option value="scripts">[6] Script / Cursive</option>
+    <option value="fraktur">[7] Gothic / Fraktur</option>
+    <option value="italicsans">[8] Italic (Sans)</option>
+    <option value="monospace">[9] Monospace</option>
+    <option value="fullwidth">[10] Fullwidth Caps</option>
+  </select>
 
   <div id="output"></div>
 
@@ -42,35 +56,67 @@
     const emoji = document.getElementById("emoji");
     const separator = document.getElementById("separator");
     const name = document.getElementById("name");
+    const fontStyle = document.getElementById("fontStyle");
     const output = document.getElementById("output");
 
-    // Map of regular letters to their cursed tiny uppercase versions
-    const smallCapsMap = {
-      'A': 'ᴀ', 'B': 'ʙ', 'C': 'ᴄ', 'D': 'ᴅ', 'E': 'ᴇ',
-      'F': 'ꜰ', 'G': 'ɢ', 'H': 'ʜ', 'I': 'ɪ', 'J': 'ᴊ',
-      'K': 'ᴋ', 'L': 'ʟ', 'M': 'ᴍ', 'N': 'ɴ', 'O': 'ᴏ',
-      'P': 'ᴘ', 'Q': 'ǫ', 'R': 'ʀ', 'S': 'ꜱ', 'T': 'ᴛ',
-      'U': 'ᴜ', 'V': 'ᴠ', 'W': 'ᴡ', 'X': 'x', 'Y': 'ʏ',
-      'Z': 'ᴢ', ' ': ' '
+    const maps = {
+      smallcaps: {
+        A: 'ᴀ', B: 'ʙ', C: 'ᴄ', D: 'ᴅ', E: 'ᴇ', F: 'ꜰ', G: 'ɢ',
+        H: 'ʜ', I: 'ɪ', J: 'ᴊ', K: 'ᴋ', L: 'ʟ', M: 'ᴍ', N: 'ɴ',
+        O: 'ᴏ', P: 'ᴘ', Q: 'ǫ', R: 'ʀ', S: 'ꜱ', T: 'ᴛ', U: 'ᴜ',
+        V: 'ᴠ', W: 'ᴡ', X: 'x', Y: 'ʏ', Z: 'ᴢ', ' ': ' '
+      },
+      boldserif: makeRangeMap(0x1D400),
+      italicserif: makeRangeMap(0x1D434),
+      bolditalicserif: makeRangeMap(0x1D468),
+      boldsans: makeRangeMap(0x1D5D4),
+      italicsans: makeRangeMap(0x1D608),
+      monospace: makeRangeMap(0x1D670),
+      fraktur: {
+        A: '𝔄', B: '𝔅', C: 'ℭ', D: '𝔇', E: '𝔈', F: '𝔉', G: '𝔊',
+        H: 'ℌ', I: 'ℑ', J: '𝔍', K: '𝔎', L: '𝔏', M: '𝔐', N: '𝔑',
+        O: '𝔒', P: '𝔓', Q: '𝔔', R: 'ℜ', S: '𝔖', T: '𝔗', U: '𝔘',
+        V: '𝔙', W: '𝔚', X: '𝔛', Y: '𝔜', Z: 'ℨ', ' ': ' '
+      },
+      scripts: {
+        A: '𝒜', B: 'ℬ', C: '𝒞', D: '𝒟', E: 'ℰ', F: 'ℱ', G: '𝒢',
+        H: 'ℋ', I: 'ℐ', J: '𝒥', K: '𝒦', L: 'ℒ', M: 'ℳ', N: '𝒩',
+        O: '𝒪', P: '𝒫', Q: '𝒬', R: 'ℛ', S: '𝒮', T: '𝒯', U: '𝒰',
+        V: '𝒱', W: '𝒲', X: '𝒳', Y: '𝒴', Z: '𝒵', ' ': ' '
+      },
+      fullwidth: {
+        ' ': '　'
+      }
     };
 
-    function cursedify(text) {
-      return [...text.toUpperCase()].map(char =>
-        smallCapsMap[char] || char
-      ).join('');
+    function makeRangeMap(base) {
+      const map = {};
+      for (let i = 0; i < 26; i++) {
+        map[String.fromCharCode(65 + i)] = String.fromCharCode(base + i);
+      }
+      map[' '] = ' ';
+      return map;
+    }
+
+    function convert(text, style) {
+      const map = maps[style];
+      return [...text.toUpperCase()].map(c => map[c] || c).join('');
     }
 
     function updateOutput() {
       const em = emoji.value || '☠️';
       const sep = separator.value || '║';
       const rawName = name.value;
-      const cursed = cursedify(rawName);
-      output.textContent = `${em}${sep}${cursed}`;
+      const style = fontStyle.value;
+
+      const styled = convert(rawName, style);
+      output.textContent = `${em}${sep}${styled}`;
     }
 
     emoji.addEventListener("input", updateOutput);
     separator.addEventListener("input", updateOutput);
     name.addEventListener("input", updateOutput);
+    fontStyle.addEventListener("change", updateOutput);
   </script>
 
 </body>
